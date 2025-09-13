@@ -1,24 +1,17 @@
 """
-🧠 Deep Learning Breast Cancer Classification - MoEffNet Streamlit App
-=====================================================================
+🧠 OncoVista - Breast Cancer Classification Streamlit App
+==========================================================
 
 A professional Streamlit application for breast cancer patch classification using 
-Multi-Expert EfficientNet (MoEffNet) with interactive mammogram analysis.
+Multi-Expert EfficientNet with interactive mammogram analysis.
 
 Features:
 - Interactive mammogram viewing with zoom and pan
 - ROI selection with fixed patch extraction (224x224)
-- Real-time AI classification using MoEffNet architecture
+- Real-time AI classification using Multi-Expert EfficientNet architecture
 - Expert contribution analysis and gating visualization
 - Professional-grade UI with confidence scoring
 - Support for DICOM, PNG, JPEG, and URL uploads
-- Automatic model download from Hugging Face Hub
-
-Model Details:
-- Repository: kateikyoushi/BC_MoEffNetB1
-- Classes: ['benign', 'malignant', 'normal']
-- Experts: 4 specialized networks
-- Architecture: Multi-Expert EfficientNet-B1
 
 Author: AI Medical Imaging Team
 Date: August 2025
@@ -48,8 +41,8 @@ from huggingface_hub import hf_hub_download
 
 # Configure page FIRST - before any other Streamlit commands
 st.set_page_config(
-    page_title="🧠 Breast Cancer MoEffNet Classifier",
-    page_icon="🔬",
+    page_title="🔬 OncoVista",
+    page_icon="🎀",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -94,7 +87,7 @@ def get_device():
 device = get_device()
 
 # =============================================================================
-# MOEFFNET MODEL ARCHITECTURE (EXACT REPLICA FROM NOTEBOOK)
+# MULTI-EXPERT EFFICIENTNET MODEL ARCHITECTURE (EXACT REPLICA FROM NOTEBOOK)
 # =============================================================================
 
 class ExpertNetwork(nn.Module):
@@ -241,7 +234,7 @@ class GatingNetwork(nn.Module):
         return gate_weights, confidence
 
 class MoEffNetClassifier(nn.Module):
-    """Multi-Expert EfficientNet (MoEffNet) for advanced patch classification"""
+    """Multi-Expert EfficientNet for advanced patch classification"""
     
     def __init__(self, num_classes=NUM_CLASSES, num_experts=NUM_EXPERTS, pretrained=True):
         super(MoEffNetClassifier, self).__init__()
@@ -354,15 +347,10 @@ class MoEffNetClassifier(nn.Module):
 
 @st.cache_resource
 def load_model():
-    """Load the trained MoEffNet model from Hugging Face Hub"""
+    """Load the trained Multi-Expert EfficientNet model"""
     try:
-        # Download model from Hugging Face Hub
-        with st.spinner("Downloading model from Hugging Face Hub..."):
-            model_path = hf_hub_download(
-                repo_id=HF_REPO_ID,
-                filename=HF_MODEL_FILE,
-                cache_dir="./.cache"  # Local cache directory
-            )
+        # Download model from Hugging Face
+        model_path = hf_hub_download(repo_id=HF_REPO_ID, filename=HF_MODEL_FILE)
         
         # Create model instance
         model = MoEffNetClassifier(num_classes=NUM_CLASSES, num_experts=NUM_EXPERTS, pretrained=False)
@@ -703,7 +691,7 @@ def create_rectangle_selection_interface(image):
         # Analysis button
         analyze_button = st.button(
             "🔬 Analyze Region", 
-            help="Analyze the selected region with MoEffNet",
+            help="Analyze the selected region with Multi-Expert EfficientNet",
             type="primary",
             use_container_width=True,
             disabled=not st.session_state.get("coordinates")
@@ -786,7 +774,7 @@ def create_rectangle_selection_interface(image):
 
 class GradCAM:
     """
-    Gradient-weighted Class Activation Mapping for MoEffNet interpretability.
+    Gradient-weighted Class Activation Mapping for Multi-Expert EfficientNet interpretability.
     Adapted for multi-expert architecture.
     """
     
@@ -799,7 +787,7 @@ class GradCAM:
     
     def _get_target_layer(self):
         """Get the last convolutional layer of the EfficientNet backbone"""
-        # For MoEffNet with EfficientNet-B1, get the last conv layer from features
+        # For Multi-Expert EfficientNet with EfficientNet-B1, get the last conv layer from features
         if hasattr(self.model, 'backbone'):
             # Handle DataParallel wrapper
             backbone = self.model.backbone if not isinstance(self.model, nn.DataParallel) else self.model.module.backbone
@@ -830,7 +818,7 @@ class GradCAM:
     
     def generate_cam(self, input_tensor, class_idx=None):
         """
-        Generate Class Activation Map for MoEffNet
+        Generate Class Activation Map for Multi-Expert EfficientNet
         
         Args:
             input_tensor: Input image tensor
@@ -898,7 +886,7 @@ class GradCAM:
 
 def create_attention_heatmap(model, input_tensor, target_size=(224, 224)):
     """
-    Create attention heatmap using feature maps from MoEffNet backbone
+    Create attention heatmap using feature maps from Multi-Expert EfficientNet backbone
     """
     model.eval()
     
@@ -1066,7 +1054,7 @@ def create_comprehensive_xai_analysis(analysis_results, patch_image, gradcam_hea
     # Update layout
     fig.update_layout(
         height=800,
-        title_text="🔍 Comprehensive XAI Analysis - MoEffNet Explainability",
+        title_text="🔍 Comprehensive XAI Analysis - Multi-Expert EfficientNet Explainability",
         title_x=0.5,
         showlegend=True
     )
@@ -1153,7 +1141,7 @@ def create_expert_analysis_plot(analysis_results):
     # Update layout
     fig.update_layout(
         height=700,
-        title_text=f"🧠 MoEffNet Expert Analysis (Confidence: {confidence:.1%})",
+        title_text=f"🧠 Multi-Expert EfficientNet Expert Analysis (Confidence: {confidence:.1%})",
         title_x=0.5,
         showlegend=True,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
@@ -1201,74 +1189,32 @@ def create_confidence_gauge(confidence):
 # =============================================================================
 
 def main():
-    # Custom CSS for professional styling
-    st.markdown("""
-    <style>
-    .main-header {
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
-        border-radius: 10px;
-        margin-bottom: 2rem;
-    }
-    .main-header h1 {
-        color: white;
-        text-align: center;
-        margin: 0;
-        font-size: 2.5rem;
-    }
-    .main-header p {
-        color: rgba(255,255,255,0.9);
-        text-align: center;
-        margin: 0.5rem 0 0 0;
-        font-size: 1.1rem;
-    }
-    .phase-info {
-        background: #f8f9fa;
-        padding: 1rem;
-        border-radius: 8px;
-        border-left: 4px solid #007bff;
-        margin: 1rem 0;
-    }
-    .result-box {
-        padding: 1.5rem;
-        border-radius: 10px;
-        text-align: center;
-        font-weight: bold;
-        font-size: 1.2rem;
-        margin: 1rem 0;
-    }
-    .result-normal { background-color: #d4edda; color: #155724; border: 2px solid #28a745; }
-    .result-benign { background-color: #fff3cd; color: #856404; border: 2px solid #ffc107; }
-    .result-malignant { background-color: #f8d7da; color: #721c24; border: 2px solid #dc3545; }
-    </style>
-    """, unsafe_allow_html=True)
+
     
     # Main header
-    st.markdown("""
-    <div class="main-header">
-        <h1>🧠 Deep Learning Breast Cancer Classification</h1>
-        <p>Multi-Expert EfficientNet (MoEffNet) - Interactive Mammogram Analysis Platform</p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.title("🔬 OncoVista")
+    st.write("Multi-Expert EfficientNet - Interactive Mammogram Analysis Platform")
     
     # Sidebar configuration
     with st.sidebar:
         st.header("🔧 Configuration")
         
         # Phase information
-        st.markdown("""
-        <div class="phase-info">
-        <h4>🧪 Best Practice Pipeline (Phased)</h4>
-        <p><strong>✅ Phase 1:</strong> Train patch classifier<br>
-        <strong>🔁 Phase 2:</strong> Evaluate on manual ROI extractions<br>
-        <strong>🚧 Phase 3:</strong> Integrate segmentation (U-Net/GMIC)<br>
-        <strong>🧠 Phase 4:</strong> End-to-end diagnostic pipeline</p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.info("""
+        🧪 Best Practice Pipeline (Phased)
+        
+        **✅ Phase 1:** Train patch classifier
+        
+        **🔁 Phase 2:** Evaluate on manual ROI extractions
+        
+        **🚧 Phase 3:** See XAI Visualiszation
+        
+        **🧠 Phase 4:** End-to-end diagnostic pipeline
+        """)
         
         st.subheader("📊 Model Information")
         st.info("""
-        **Architecture:** MoEffNet (Multi-Expert EfficientNet-B1)  
+        **Architecture:** Multi-Expert EfficientNet-B1  
         **Experts:** 4 specialized networks  
         **Classes:** Normal, Benign, Malignant  
         **Input Size:** 224×224 pixels  
@@ -1294,18 +1240,18 @@ def main():
             st.session_state["max_display_height"] = max_display_height
     
     # Load model
-    with st.spinner("🔄 Loading MoEffNet model..."):
+    with st.spinner("🔄 Downloading and loading Multi-Expert EfficientNet model from Hugging Face..."):
         model, error = load_model()
     
     if model is None:
         st.error(f"❌ Failed to load model: {error}")
-        st.info(f"Please check your internet connection. The model will be downloaded from Hugging Face Hub: {HF_REPO_ID}")
+        st.info("Please check your internet connection and ensure the Hugging Face repository is accessible.")
         return
     
-    st.success("✅ MoEffNet model loaded successfully!")
+    st.success("✅ Multi-Expert EfficientNet model loaded successfully from Hugging Face!")
     
     # Main interface tabs
-    tab1, tab2, tab3 = st.tabs(["📤 Upload & Analyze", "📊 Results Dashboard", "📖 About MoEffNet"])
+    tab1, tab2, tab3 = st.tabs(["📤 Upload & Analyze", "📊 Results Dashboard", "📖 About Multi-Expert EfficientNet"])
     
     with tab1:
         col1, col2 = st.columns([2, 1])
@@ -1316,7 +1262,7 @@ def main():
             # Upload options
             upload_method = st.radio(
                 "Choose upload method:",
-                ["📁 File Upload", "🌐 URL", "🎯 Demo Image"],
+                ["📁 File Upload", "🌐 URL"],
                 horizontal=True
             )
             
@@ -1338,15 +1284,6 @@ def main():
                 )
                 if image_url:
                     uploaded_image = load_image_from_url(image_url)
-            
-            elif upload_method == "🎯 Demo Image":
-                demo_option = st.selectbox(
-                    "Select demo image:",
-                    ["Sample Mammogram 1", "Sample Mammogram 2", "Sample Mammogram 3"]
-                )
-                # For demo purposes, create a placeholder
-                uploaded_image = Image.new('RGB', (800, 600), color='lightgray')
-                st.info("Demo images would be loaded here in a real deployment.")
         
         with col2:
             st.subheader("📋 Instructions")
@@ -1387,7 +1324,7 @@ def main():
                     st.subheader("📋 Model Input")
                     st.image(
                         st.session_state["current_patch"], 
-                        caption=f"Resized to {PATCH_SIZE}×{PATCH_SIZE} for MoEffNet", 
+                        caption=f"Resized to {PATCH_SIZE}×{PATCH_SIZE} for Multi-Expert EfficientNet", 
                         width=224
                     )
                     
@@ -1411,7 +1348,7 @@ def main():
                 
                 with col_results2:
                     # Classify patch with comprehensive analysis
-                    with st.spinner("🧠 Analyzing with MoEffNet..."):
+                    with st.spinner("🧠 Analyzing with Multi-Expert EfficientNet..."):
                         try:
                             transform = get_transforms()
                             patch_tensor = transform(st.session_state["current_patch"]).unsqueeze(0).to(device)
@@ -1431,13 +1368,12 @@ def main():
                             attention_heatmap = create_attention_heatmap(model, patch_tensor)
                             
                             # Display result
-                            result_html = f"""
-                            <div class="result-box result-{predicted_class}">
-                                {CLASS_EMOJIS[predicted_class]} <strong>{predicted_class.upper()}</strong><br>
-                                Confidence: {final_probs[predicted_class_idx]:.1%}
-                            </div>
-                            """
-                            st.markdown(result_html, unsafe_allow_html=True)
+                            if predicted_class == 'normal':
+                                st.success(f"{CLASS_EMOJIS[predicted_class]} **{predicted_class.upper()}** - Confidence: {final_probs[predicted_class_idx]:.1%}")
+                            elif predicted_class == 'benign':
+                                st.warning(f"{CLASS_EMOJIS[predicted_class]} **{predicted_class.upper()}** - Confidence: {final_probs[predicted_class_idx]:.1%}")
+                            else:  # malignant
+                                st.error(f"{CLASS_EMOJIS[predicted_class]} **{predicted_class.upper()}** - Confidence: {final_probs[predicted_class_idx]:.1%}")
                             
                             # Show all class probabilities
                             st.subheader("📊 Class Probabilities")
@@ -1651,7 +1587,7 @@ def main():
                 # Technical details expandable section
                 with st.expander("🔧 Advanced Technical Details"):
                     st.code(f"""
-MoEffNet Architecture Details:
+Multi-Expert EfficientNet Architecture Details:
 =============================
 Backbone: EfficientNet-B1 (Pre-trained on ImageNet)
 Expert Networks: {NUM_EXPERTS} specialized architectures
@@ -1717,7 +1653,7 @@ Mixed Precision: Enabled for training
                     st.subheader("📋 Summary Report")
                     
                     summary_text = f"""
-MoEffNet Breast Cancer Analysis Report
+Multi-Expert EfficientNet Breast Cancer Analysis Report
 =====================================
 Analysis Date: {export_data['timestamp']}
 
@@ -1784,7 +1720,7 @@ Always consult healthcare professionals.
             """)
     
     with tab3:
-        st.subheader("📖 About Multi-Expert EfficientNet (MoEffNet)")
+        st.subheader("📖 About Multi-Expert EfficientNet")
         
         col1, col2 = st.columns(2)
         
@@ -1792,7 +1728,7 @@ Always consult healthcare professionals.
             st.markdown("""
             #### 🏗️ Architecture Overview
             
-            **MoEffNet** combines multiple specialized expert networks with intelligent gating for superior breast cancer classification:
+            **Multi-Expert EfficientNet** combines multiple specialized expert networks with intelligent gating for superior breast cancer classification:
             
             1. **EfficientNet-B1 Backbone**: Pre-trained feature extractor
             2. **4 Expert Networks**: Each specialized for different pattern types
@@ -1829,18 +1765,16 @@ Always consult healthcare professionals.
         ---
         #### 🔬 Technical Implementation
         
-        This application implements the complete MoEffNet pipeline from the research notebook:
+        This application implements the complete Multi-Expert EfficientNet pipeline from the research notebook:
         
         1. **Professional Data Pipeline**: Custom Dataset and optimized DataLoader
         2. **Advanced Training**: Mixed precision, early stopping, comprehensive metrics
         3. **Expert Analysis**: Detailed visualization of expert contributions
         4. **Interactive Interface**: Real-time mammogram analysis with click selection
-        5. **Production Ready**: Cached model loading from Hugging Face Hub, error handling, professional UI
-        6. **Cloud Model Hosting**: Pre-trained model hosted on Hugging Face Hub (kateikyoushi/BC_MoEffNetB1)
+        5. **Production Ready**: Cached model loading, error handling, professional UI
         
         The model achieves state-of-the-art performance through its multi-expert architecture
-        while maintaining interpretability through gating visualization. The model is automatically
-        downloaded from Hugging Face Hub on first use and cached locally for subsequent runs.
+        while maintaining interpretability through gating visualization.
         """)
 
 if __name__ == "__main__":
